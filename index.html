@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="P. Bhargava Sri Sampath — 3D Software Developer Portfolio">
+<title>Bhargava — 3D Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070c;
+  --text:#f5f7fb;
+  --muted:#9aa6b8;
+  --cyan:#59e4ff;
+  --violet:#a78bfa;
+  --green:#7ef0bd;
+  --panel:rgba(8,12,20,.58);
+  --line:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(89,228,255,.08),transparent 34%),
+    radial-gradient(circle at 85% 80%,rgba(167,139,250,.08),transparent 34%),
+    linear-gradient(180deg,#04060a,#070a12 50%,#04060a);
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+#webgl{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+  display:block;
+}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+}
+.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--violet));z-index:100;width:0}
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:80;height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(18px,4vw,64px);
+  background:linear-gradient(180deg,rgba(4,6,10,.72),transparent);
+  pointer-events:none;
+}
+.logo,.top-actions{pointer-events:auto}
+.logo{font:600 13px 'JetBrains Mono';letter-spacing:.14em}
+.logo span{color:var(--cyan)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.top-actions a{
+  border:1px solid var(--line);border-radius:999px;padding:9px 13px;
+  font:500 11px 'JetBrains Mono';color:var(--muted);
+  backdrop-filter:blur(10px);background:rgba(255,255,255,.025)
+}
+.top-actions a:hover{color:var(--text);border-color:rgba(89,228,255,.45)}
+.side-nav{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);
+  z-index:80;display:grid;gap:12px;
+}
+.side-nav a{
+  width:9px;height:9px;border:1px solid rgba(255,255,255,.4);border-radius:50%;
+  position:relative;transition:.25s;background:rgba(255,255,255,.02)
+}
+.side-nav a::before{
+  content:attr(data-label);position:absolute;right:18px;top:50%;transform:translateY(-50%);
+  white-space:nowrap;font:500 9px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);opacity:0;transition:.2s;pointer-events:none;
+}
+.side-nav a:hover::before,.side-nav a.active::before{opacity:1}
+.side-nav a.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 16px rgba(89,228,255,.65)}
+main{position:relative}
+.scene{
+  min-height:100vh;
+  position:relative;
+  display:flex;
+  align-items:center;
+  padding:110px clamp(22px,7vw,110px) 80px;
+}
+.scene-inner{width:min(1180px,100%);margin:auto;position:relative}
+.scene-content{
+  max-width:660px;
+  padding:28px 0;
+  opacity:.18;
+  transform:translateY(60px) scale(.96);
+  transition:opacity .55s ease,transform .65s cubic-bezier(.2,.75,.2,1);
+}
+.scene.active .scene-content{opacity:1;transform:none}
+.scene:nth-child(even) .scene-content{margin-left:auto}
+.eyebrow{
+  font:600 11px 'JetBrains Mono';letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:18px;display:flex;align-items:center;gap:9px;
+}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--cyan)}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0}
+h1{
+  font-size:clamp(70px,15vw,190px);
+  line-height:.78;letter-spacing:-.075em;font-weight:700
+}
+h1 .stroke{
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.44);
+  display:block;margin-left:.08em;
+}
+h2{font-size:clamp(42px,7vw,92px);line-height:.92;letter-spacing:-.055em}
+h3{font-size:clamp(23px,3vw,38px);letter-spacing:-.03em}
+.lede{
+  margin-top:26px;max-width:620px;color:var(--muted);
+  font-size:clamp(15px,1.6vw,19px);line-height:1.75
+}
+.intro .scene-content{max-width:950px}
+.intro .hello-sub{
+  display:flex;gap:20px;flex-wrap:wrap;margin-top:34px;
+  color:var(--muted);font:500 12px 'JetBrains Mono'
+}
+.scroll-note{
+  margin-top:54px;display:inline-flex;align-items:center;gap:12px;
+  font:500 10px 'JetBrains Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--muted)
+}
+.scroll-wheel{width:22px;height:34px;border:1px solid rgba(255,255,255,.28);border-radius:20px;position:relative}
+.scroll-wheel::after{content:"";position:absolute;top:7px;left:50%;width:3px;height:6px;border-radius:3px;background:var(--cyan);transform:translateX(-50%);animation:wheel 1.7s infinite}
+@keyframes wheel{0%{transform:translate(-50%,0);opacity:0}20%{opacity:1}70%{opacity:1}100%{transform:translate(-50%,11px);opacity:0}}
+.glass{
+  margin-top:30px;border:1px solid var(--line);background:var(--panel);
+  backdrop-filter:blur(16px);border-radius:22px;padding:22px;
+  box-shadow:0 22px 90px rgba(0,0,0,.28)
+}
+.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.stat{padding:17px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.stat b{display:block;font:600 11px 'JetBrains Mono';color:var(--cyan);margin-bottom:7px}
+.stat span{font-size:13px;color:var(--muted);line-height:1.55}
+.timeline{
+  margin-top:28px;padding-left:24px;border-left:1px solid rgba(89,228,255,.28);position:relative
+}
+.timeline::before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:var(--cyan);left:-5px;top:8px;box-shadow:0 0 18px var(--cyan)}
+.timeline .date{font:600 11px 'JetBrains Mono';color:var(--violet);margin-bottom:7px}
+.timeline p{color:var(--muted);line-height:1.7;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{padding:8px 11px;border-radius:999px;border:1px solid var(--line);font:500 10px 'JetBrains Mono';color:#c7d0de;background:rgba(255,255,255,.025)}
+.project-shell{margin-top:28px}
+.project{
+  display:none;border:1px solid var(--line);border-radius:22px;padding:26px;background:var(--panel);backdrop-filter:blur(16px)
+}
+.project.active{display:grid;grid-template-columns:1fr .8fr;gap:26px}
+.project .k{font:600 10px 'JetBrains Mono';color:var(--cyan);letter-spacing:.1em;margin-bottom:10px}
+.project p{color:var(--muted);line-height:1.68}
+.specs{display:grid;gap:8px}
+.spec{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}
+.spec b{font:500 10px 'JetBrains Mono';color:var(--muted)}
+.spec span{text-align:right}
+.project-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.project-dots{display:flex;gap:8px}
+.project-dots button{width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:transparent;padding:0}
+.project-dots button.active{background:var(--cyan);border-color:var(--cyan)}
+.project-arrows{display:flex;gap:8px}
+.project-arrows button{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);color:var(--text);
+  background:rgba(255,255,255,.035);cursor:pointer
+}
+.skill-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}
+.skill-card{padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.skill-top{display:flex;justify-content:space-between;font:500 11px 'JetBrains Mono';margin-bottom:10px}
+.skill-top span:last-child{color:var(--cyan)}
+.track{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width 1s ease}
+.scene.active .track i{width:var(--w)}
+.contact-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.contact-links a{
+  padding:13px 18px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);font:600 12px 'JetBrains Mono'
+}
+.contact-links a.primary{background:var(--text);color:#07090e;border-color:var(--text)}
+.section-id{
+  position:absolute;left:-3px;top:-54px;font:600 10px 'JetBrains Mono';color:rgba(255,255,255,.25);letter-spacing:.14em
+}
+.loader{
+  position:fixed;inset:0;z-index:500;background:#04060a;display:grid;place-items:center;
+  transition:opacity .65s ease,visibility .65s ease
+}
+.loader.hide{opacity:0;visibility:hidden}
+.loader-box{text-align:center}
+.loader-ring{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.16);border-top-color:var(--cyan);margin:auto;animation:spin 1s linear infinite}
+.loader p{font:500 10px 'JetBrains Mono';color:var(--muted);letter-spacing:.12em;margin-top:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.webgl-fallback{display:none;position:fixed;left:20px;bottom:18px;z-index:90;font:10px 'JetBrains Mono';color:var(--muted)}
+@media(max-width:850px){
+  .side-nav{display:none}
+  .scene,.scene:nth-child(even) .scene-content{padding-left:22px;padding-right:22px}
+  .scene-content{max-width:100%;margin:0}
+  .about-grid{grid-template-columns:1fr}
+  .project.active{grid-template-columns:1fr}
+  .skill-grid{grid-template-columns:1fr}
+  h1{font-size:clamp(68px,23vw,125px)}
+  .top-actions a:first-child{display:none}
+}
+@media(max-width:520px){
+  .topbar{height:62px;padding:0 16px}
+  .top-actions a{padding:8px 10px;font-size:9px}
+  .scene{padding-top:90px}
+  h2{font-size:clamp(40px,15vw,64px)}
+  .glass,.project{padding:18px}
+  .hello-sub{font-size:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="loader" id="loader"><div class="loader-box"><div class="loader-ring"></div><p>INITIALIZING 3D WORLD</p></div></div>
+<div class="progress" id="progress"></div>
+<canvas id="webgl"></canvas>
+<div class="grain"></div>
+
+<header class="topbar">
+  <a class="logo" href="#hello"><span>●</span> BHARGAVA / 3D</a>
+  <div class="top-actions">
+    <a href="./Bhargava_Resume.pdf" target="_blank" rel="noopener">RESUME ↗</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+</header>
+
+<nav class="side-nav" aria-label="Section navigation">
+  <a href="#hello" data-label="Hello" class="active"></a>
+  <a href="#about" data-label="About"></a>
+  <a href="#experience" data-label="Experience"></a>
+  <a href="#projects" data-label="Projects"></a>
+  <a href="#skills" data-label="Skills"></a>
+  <a href="#contact" data-label="Contact"></a>
+</nav>
+
+<main>
+<section class="scene intro active" id="hello" data-scene="0">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <div class="eyebrow">Enter the portfolio</div>
+      <h1>Hello<span class="stroke">World.</span></h1>
+      <p class="lede">I’m P. Bhargava Sri Sampath — a software engineer who builds practical systems with Python, C/C++, SQL and modern development tools.</p>
+      <div class="hello-sub">
+        <span>SOFTWARE ENGINEER</span><span>ANDHRA PRADESH, INDIA</span><span>OPEN TO SOFTWARE / CSE ROLES</span>
+      </div>
+      <div class="scroll-note"><span class="scroll-wheel"></span>Scroll to travel through the 3D world</div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="about" data-scene="1">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <span class="section-id">01 / ABOUT</span>
+      <div class="eyebrow">Manifesto</div>
+      <h2>Build. Test.<br>Improve.</h2>
+      <p class="lede">I turn systems concepts and hands-on engineering into working, useful applications — with a strong focus on software development, problem solving and continuous learning.</p>
+      <div class="about-grid">
+        <div class="stat"><b>FOCUS</b><span>Software development & problem solving</span></div>
+        <div class="stat"><b>BACKGROUND</b><span>Embedded systems & IoT internship</span></div>
+        <div class="stat"><b>APPROACH</b><span>Ship it, test it, improve it</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="experience" data-scene="2">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <span class="section-id">02 / EXPERIENCE</span>
+      <div class="eyebrow">Experience</div>
+      <h2>Beyond the<br>classroom.</h2>
+      <div class="glass">
+        <div class="timeline">
+          <div class="date">MAY — JUL 2025</div>
+          <h3>IoT / Embedded Systems Intern</h3>
+          <p>Centre of Excellence in Maritime and Shipbuilding · Visakhapatnam</p>
+          <p>Worked with embedded firmware, sensors, microcontrollers and cloud-connected systems while building practical engineering workflows.</p>
+          <div class="chips">
+            <span class="chip">ARM</span><span class="chip">ESP32</span><span class="chip">C / C++</span>
+            <span class="chip">Blynk</span><span class="chip">AWS IoT Core</span><span class="chip">Node-RED</span>
+            <span class="chip">ThingSpeak</span><span class="chip">OTA Firmware</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="projects" data-scene="3">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <span class="section-id">03 / PROJECTS</span>
+      <div class="eyebrow">Selected work</div>
+      <h2>Small systems.<br>Real problems.</h2>
+      <div class="project-shell" id="projectShell">
+        <article class="project active">
+          <div><div class="k">01 / PYTHON · OCT 2025</div><h3>Simple Translator</h3><p>A real-time language translation project focused on multi-language conversion through a simple, user-friendly interface.</p><div class="chips"><span class="chip">Python</span><span class="chip">googletrans</span><span class="chip">TextBlob</span></div></div>
+          <div class="specs"><div class="spec"><b>CORE</b><span>Text translation</span></div><div class="spec"><b>LANGUAGES</b><span>Multiple pairs</span></div><div class="spec"><b>FOCUS</b><span>Low-latency interaction</span></div><div class="spec"><b>TYPE</b><span>Python application</span></div></div>
+        </article>
+        <article class="project">
+          <div><div class="k">02 / C / C++ · NOV 2024</div><h3>File Manager</h3><p>A systems-oriented file manager implementing core file operations with error handling and concurrent execution.</p><div class="chips"><span class="chip">C / C++</span><span class="chip">File I/O</span><span class="chip">Multithreading</span></div></div>
+          <div class="specs"><div class="spec"><b>OPERATIONS</b><span>Create / Read / Write / Rename / Copy / Delete</span></div><div class="spec"><b>CONCURRENCY</b><span>Multithreading</span></div><div class="spec"><b>FOCUS</b><span>OS concepts + file I/O</span></div><div class="spec"><b>INTERFACE</b><span>Terminal</span></div></div>
+        </article>
+        <article class="project">
+          <div><div class="k">03 / BLENDER · JUN 2024</div><h3>CS2 Workshop Asset Design</h3><p>A custom Counter-Strike 2 weapon-skin asset created through modeling and texturing workflows for game content.</p><div class="chips"><span class="chip">Blender</span><span class="chip">3D Modeling</span><span class="chip">Texturing</span></div></div>
+          <div class="specs"><div class="spec"><b>TOOL</b><span>Blender</span></div><div class="spec"><b>OUTPUT</b><span>Game-ready asset</span></div><div class="spec"><b>FOCUS</b><span>Modeling + texturing</span></div><div class="spec"><b>STYLE</b><span>Workshop content</span></div></div>
+        </article>
+        <article class="project">
+          <div><div class="k">04 / SQL / PYTHON · JAN 2023</div><h3>Library Management System</h3><p>A database-backed system for managing books, users and loans, including search, borrowing, returning and due-date tracking.</p><div class="chips"><span class="chip">Python</span><span class="chip">MySQL</span><span class="chip">SQL</span></div></div>
+          <div class="specs"><div class="spec"><b>BACKEND</b><span>MySQL</span></div><div class="spec"><b>LANGUAGE</b><span>Python</span></div><div class="spec"><b>CORE</b><span>Borrow / return / search</span></div><div class="spec"><b>TRACKING</b><span>Due dates + transactions</span></div></div>
+        </article>
+        <div class="project-nav">
+          <div class="project-dots" id="projectDots"></div>
+          <div class="project-arrows"><button id="prevProject" aria-label="Previous project">←</button><button id="nextProject" aria-label="Next project">→</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="skills" data-scene="4">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <span class="section-id">04 / SKILLS</span>
+      <div class="eyebrow">Development stack</div>
+      <h2>Tools I<br>build with.</h2>
+      <div class="skill-grid">
+        <div class="skill-card"><div class="skill-top"><span>PYTHON</span><span>85%</span></div><div class="track"><i style="--w:85%"></i></div></div>
+        <div class="skill-card"><div class="skill-top"><span>SQL</span><span>75%</span></div><div class="track"><i style="--w:75%"></i></div></div>
+        <div class="skill-card"><div class="skill-top"><span>WEB</span><span>70%</span></div><div class="track"><i style="--w:70%"></i></div></div>
+        <div class="skill-card"><div class="skill-top"><span>DATA</span><span>70%</span></div><div class="track"><i style="--w:70%"></i></div></div>
+        <div class="skill-card"><div class="skill-top"><span>C / C++</span><span>60%</span></div><div class="track"><i style="--w:60%"></i></div></div>
+        <div class="skill-card"><div class="skill-top"><span>3D / EMBEDDED</span><span>STACK</span></div><div class="chips"><span class="chip">Blender</span><span class="chip">ESP32</span><span class="chip">Arduino</span><span class="chip">AWS IoT</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="contact" data-scene="5">
+  <div class="scene-inner">
+    <div class="scene-content">
+      <span class="section-id">05 / CONTACT</span>
+      <div class="eyebrow">Final destination</div>
+      <h2>Let’s build<br>something useful.</h2>
+      <p class="lede">Open to software roles, internships, projects and collaborations where I can solve problems and keep learning.</p>
+      <div class="contact-links">
+        <a class="primary" href="mailto:Bhargava0611@gmail.com">EMAIL ME</a>
+        <a href="https://github.com/bhargava-0611" target="_blank" rel="noopener">GITHUB ↗</a>
+        <a href="https://www.linkedin.com/in/bhargava-prathi-301907283/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="webgl-fallback" id="fallback">3D unavailable — content mode active</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(() => {
+  const sections = [...document.querySelectorAll('.scene')];
+  const navDots = [...document.querySelectorAll('.side-nav a')];
+  const progress = document.getElementById('progress');
+
+  // Project carousel
+  const projects = [...document.querySelectorAll('.project')];
+  const dotsWrap = document.getElementById('projectDots');
+  let projectIndex = 0;
+  projects.forEach((_,i)=>{
+    const b=document.createElement('button');
+    b.setAttribute('aria-label','Project '+(i+1));
+    b.addEventListener('click',()=>showProject(i));
+    dotsWrap.appendChild(b);
+  });
+  function showProject(i){
+    projectIndex=(i+projects.length)%projects.length;
+    projects.forEach((p,n)=>p.classList.toggle('active',n===projectIndex));
+    [...dotsWrap.children].forEach((d,n)=>d.classList.toggle('active',n===projectIndex));
+  }
+  document.getElementById('prevProject').addEventListener('click',()=>showProject(projectIndex-1));
+  document.getElementById('nextProject').addEventListener('click',()=>showProject(projectIndex+1));
+  showProject(0);
+
+  let activeIndex=0;
+  function updateDOM(){
+    const max=document.documentElement.scrollHeight-innerHeight;
+    progress.style.width=(max>0?(scrollY/max)*100:0)+'%';
+    const mid=innerHeight*.52;
+    let best=0,dist=Infinity;
+    sections.forEach((s,i)=>{
+      const r=s.getBoundingClientRect();
+      const d=Math.abs((r.top+r.height/2)-mid);
+      if(d<dist){dist=d;best=i}
+    });
+    activeIndex=best;
+    sections.forEach((s,i)=>s.classList.toggle('active',i===best));
+    navDots.forEach((d,i)=>d.classList.toggle('active',i===best));
+  }
+  addEventListener('scroll',updateDOM,{passive:true});
+  addEventListener('resize',updateDOM,{passive:true});
+  updateDOM();
+
+  const canvas=document.getElementById('webgl');
+  if(!window.THREE){
+    document.getElementById('fallback').style.display='block';
+    document.getElementById('loader').classList.add('hide');
+    return;
+  }
+
+  let renderer;
+  try{
+    renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+  }catch(err){
+    document.getElementById('fallback').style.display='block';
+    document.getElementById('loader').classList.add('hide');
+    return;
+  }
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x05070c,.014);
+
+  const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,200);
+  camera.position.set(0,0,12);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0x8aa0b8,1.1));
+  const cyanLight=new THREE.PointLight(0x59e4ff,35,30);
+  cyanLight.position.set(4,3,6); scene.add(cyanLight);
+  const violetLight=new THREE.PointLight(0xa78bfa,28,30);
+  violetLight.position.set(-4,-2,5); scene.add(violetLight);
+
+  const world=new THREE.Group();
+  scene.add(world);
+
+  // Background star tunnel
+  const starCount=innerWidth<700?850:1500;
+  const starGeo=new THREE.BufferGeometry();
+  const starPos=new Float32Array(starCount*3);
+  for(let i=0;i<starCount;i++){
+    starPos[i*3]=(Math.random()-.5)*28;
+    starPos[i*3+1]=(Math.random()-.5)*20;
+    starPos[i*3+2]=-Math.random()*110+8;
+  }
+  starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+  const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0x8edfff,size:.035,transparent:true,opacity:.75,depthWrite:false}));
+  world.add(stars);
+
+  // Shared materials
+  const cyanMat=new THREE.MeshStandardMaterial({color:0x59e4ff,metalness:.6,roughness:.25,wireframe:true,transparent:true,opacity:.75});
+  const violetMat=new THREE.MeshStandardMaterial({color:0xa78bfa,metalness:.55,roughness:.25,wireframe:true,transparent:true,opacity:.68});
+  const glassMat=new THREE.MeshPhysicalMaterial({color:0x6adcf4,metalness:.1,roughness:.08,transmission:.55,transparent:true,opacity:.28,wireframe:true});
+
+  // Create section worlds along negative Z so scroll feels like camera travel
+  const sceneZ=[0,-22,-44,-66,-88,-110];
+  const objects=[];
+
+  // 0 HELLO — portal + knot
+  const hello=new THREE.Group(); hello.position.z=sceneZ[0]-6; world.add(hello); objects.push(hello);
+  const portal=new THREE.Mesh(new THREE.TorusGeometry(4.5,.035,16,120),cyanMat); hello.add(portal);
+  const portal2=new THREE.Mesh(new THREE.TorusGeometry(3.5,.02,16,120),violetMat); portal2.rotation.x=Math.PI/2.4; hello.add(portal2);
+  const knot=new THREE.Mesh(new THREE.TorusKnotGeometry(1.5,.08,150,12,2,3),violetMat); hello.add(knot);
+
+  // 1 ABOUT — rotating polyhedron
+  const about=new THREE.Group(); about.position.set(-3,0,sceneZ[1]); world.add(about); objects.push(about);
+  const ico=new THREE.Mesh(new THREE.IcosahedronGeometry(2.45,2),glassMat); about.add(ico);
+  for(let i=0;i<3;i++){
+    const r=new THREE.Mesh(new THREE.TorusGeometry(3.2+i*.55,.022,8,100),i%2?cyanMat:violetMat);
+    r.rotation.set(Math.random()*2,Math.random()*2,Math.random()*2); about.add(r);
+  }
+
+  // 2 EXPERIENCE — orbital system / engineering rings
+  const exp=new THREE.Group(); exp.position.set(3,0,sceneZ[2]); world.add(exp); objects.push(exp);
+  const core=new THREE.Mesh(new THREE.SphereGeometry(.72,24,24),new THREE.MeshStandardMaterial({color:0x59e4ff,emissive:0x143c48,metalness:.3,roughness:.2}));
+  exp.add(core);
+  for(let i=0;i<5;i++){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(1.5+i*.55,.028,8,90),i%2?violetMat:cyanMat);
+    ring.rotation.set(Math.PI/2+i*.18,i*.3,i*.14); exp.add(ring);
+    const sat=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,.18),new THREE.MeshStandardMaterial({color:i%2?0xa78bfa:0x59e4ff,emissive:0x111111}));
+    sat.position.x=1.5+i*.55; ring.add(sat);
+  }
+
+  // 3 PROJECTS — floating cubes / code blocks
+  const proj=new THREE.Group(); proj.position.set(-2.5,0,sceneZ[3]); world.add(proj); objects.push(proj);
+  for(let i=0;i<9;i++){
+    const size=.55+Math.random()*.75;
+    const box=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),i%2?cyanMat:violetMat);
+    const a=i/9*Math.PI*2;
+    box.position.set(Math.cos(a)*(2.5+Math.random()*1.3),Math.sin(a)*(2.2+Math.random()*.9),(Math.random()-.5)*2);
+    box.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);
+    proj.add(box);
+  }
+
+  // 4 SKILLS — 3D node network
+  const skills=new THREE.Group(); skills.position.set(3,0,sceneZ[4]); world.add(skills); objects.push(skills);
+  const nodes=[];
+  const nodeGeo=new THREE.SphereGeometry(.13,12,12);
+  for(let i=0;i<18;i++){
+    const m=new THREE.Mesh(nodeGeo,new THREE.MeshStandardMaterial({color:i%2?0x59e4ff:0xa78bfa,emissive:i%2?0x143946:0x271e45}));
+    m.position.set((Math.random()-.5)*6,(Math.random()-.5)*5,(Math.random()-.5)*3);
+    skills.add(m);nodes.push(m);
+  }
+  const linePts=[];
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      if(nodes[i].position.distanceTo(nodes[j].position)<2.6){
+        linePts.push(nodes[i].position.clone(),nodes[j].position.clone());
+      }
+    }
+  }
+  const netGeo=new THREE.BufferGeometry().setFromPoints(linePts);
+  skills.add(new THREE.LineSegments(netGeo,new THREE.LineBasicMaterial({color:0x59e4ff,transparent:true,opacity:.22})));
+
+  // 5 CONTACT — giant closing portal
+  const contact=new THREE.Group(); contact.position.z=sceneZ[5]; world.add(contact); objects.push(contact);
+  for(let i=0;i<5;i++){
+    const tor=new THREE.Mesh(new THREE.TorusGeometry(1.5+i*.85,.025,8,120),i%2?violetMat:cyanMat);
+    tor.rotation.set(i*.14,i*.18,i*.12); contact.add(tor);
+  }
+  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(1.1,1),glassMat); contact.add(gem);
+
+  // Scroll -> camera path
+  let targetScroll=0,currentScroll=0;
+  let mx=0,my=0,tmx=0,tmy=0;
+  addEventListener('scroll',()=>targetScroll=scrollY,{passive:true});
+  addEventListener('pointermove',e=>{
+    tmx=(e.clientX/innerWidth-.5);
+    tmy=(e.clientY/innerHeight-.5);
+  },{passive:true});
+
+  const clock=new THREE.Clock();
+  function render(){
+    requestAnimationFrame(render);
+    const t=clock.getElapsedTime();
+    currentScroll+=(targetScroll-currentScroll)*.055;
+    mx+=(tmx-mx)*.04; my+=(tmy-my)*.04;
+
+    const max=Math.max(document.documentElement.scrollHeight-innerHeight,1);
+    const p=Math.min(Math.max(currentScroll/max,0),1);
+    const journey=p*(sceneZ.length-1);
+    const i=Math.min(Math.floor(journey),sceneZ.length-2);
+    const local=journey-i;
+    const eased=local*local*(3-2*local);
+    const z=THREE.MathUtils.lerp(sceneZ[i]+9,sceneZ[i+1]+9,eased);
+
+    camera.position.z=z;
+    camera.position.x=mx*.75 + Math.sin(p*Math.PI*5)*.15;
+    camera.position.y=-my*.45 + Math.sin(p*Math.PI*3)*.12;
+    camera.rotation.z=mx*.012;
+    camera.lookAt(camera.position.x*.25,camera.position.y*.2,z-10);
+
+    stars.position.z=z-8;
+    stars.rotation.z=t*.006;
+    stars.rotation.y=mx*.025;
+
+    portal.rotation.z=t*.15;
+    portal2.rotation.z=-t*.11;
+    knot.rotation.x=t*.2;knot.rotation.y=t*.28;
+
+    ico.rotation.x=t*.18;ico.rotation.y=t*.22;
+    about.children.forEach((o,n)=>{if(n>0)o.rotation.z+=.001*(n+1)});
+
+    exp.rotation.y=t*.08;
+    exp.children.forEach((o,n)=>{if(n>0)o.rotation.z+=.0015*(n+1)});
+
+    proj.rotation.y=-t*.045;
+    proj.children.forEach((o,n)=>{o.rotation.x+=.0015+n*.00004;o.rotation.y+=.001});
+
+    skills.rotation.y=t*.055;skills.rotation.x=Math.sin(t*.25)*.07;
+    contact.rotation.z=t*.035; gem.rotation.x=t*.25;gem.rotation.y=t*.3;
+
+    // fade each 3D world by proximity to camera
+    objects.forEach((g,n)=>{
+      const dist=Math.abs((sceneZ[n]+9)-z);
+      const s=1+Math.max(0,1-dist/18)*.08;
+      g.scale.setScalar(s);
+    });
+
+    renderer.render(scene,camera);
+  }
+
+  function resize(){
+    renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  addEventListener('resize',resize,{passive:true});
+  resize();
+  targetScroll=scrollY;
+  render();
+
+  setTimeout(()=>document.getElementById('loader').classList.add('hide'),300);
+})();
+</script>
+</body>
+</html>
