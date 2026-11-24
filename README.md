@@ -3,7 +3,7 @@
 
 Welcome to my personal portfolio website, where I showcase my skills, projects, and experience.
 
-🔗 **Live Demo:** [https://bhargava-0611.github.io/My-Portfolio/](https://bhargava-0611.github.io/My-Portfolio/)
+🔗 **Live Demo:** [https://bhargava0611.vercel.app/](https://bhargava0611.vercel.app/)
 📄 **Resume:** [My Resume.pdf](./My%20Resume.pdf)
 
 ---
@@ -23,7 +23,7 @@ This portfolio is a single-page website built to introduce who I am, highlight w
 
 - **HTML5**
 - **CSS3**
-- **JavaScript** *(if used)*
+- **JavaScript**
 
 ## 📂 Project Structure
 
@@ -34,22 +34,6 @@ My-Portfolio/
 └── README.md           # Project documentation
 ```
 
-## 🚀 Getting Started
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/bhargava-0611/My-Portfolio.git
-   ```
-2. Open `My Portfolio.html` in your browser.
-
-## 🌐 Deploying with GitHub Pages
-
-1. Go to **Settings → Pages** in this repository.
-2. Under **Branch**, select `main` and click **Save**.
-3. Your site will be live at `https://bhargava-0611.github.io/My-Portfolio/`.
-
-> **Tip:** GitHub Pages looks for a file named `index.html`. Rename `My Portfolio.html` to `index.html` so the site loads at the root URL.
-
 ## 🧰 Skills
 
 - **Languages:** [e.g., Python, Java, JavaScript]
@@ -58,8 +42,8 @@ My-Portfolio/
 
 ## 📬 Contact
 
-- 📧 Email: [your-email@example.com]
-- 💼 LinkedIn: [your-linkedin-url]
+- 📧 Email: [bhargava0611@gmail.com]
+- 💼 LinkedIn: [https://www.linkedin.com/in/bhargava-prathi-301907283/]
 - 🐙 GitHub: [@bhargava-0611](https://github.com/bhargava-0611)
 
 ---
