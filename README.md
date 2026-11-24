@@ -3,7 +3,7 @@
 
 Welcome to my personal portfolio website, where I showcase my skills, projects, and experience.
 
-🔗 **Live Demo:** [https://bhargava0611.vercel.app/](https://bhargava0611.vercel.app/)
+🔗 **Live Demo:** [https://bhargavap.vercel.app/](https://bhargavap.vercel.app/)
 📄 **Resume:** [My Resume.pdf](./My%20Resume.pdf)
 
 ---
